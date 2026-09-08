@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://crm-rfq-management-system-ikl6.vercel.app/api',
 });
 
 api.interceptors.request.use((config) => {
