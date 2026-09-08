@@ -9,7 +9,7 @@ function authenticate(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'apex-rfq-jwt-secret-key-2026-production');
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload; // { id, email, role }
     next();
   } catch (err) {
