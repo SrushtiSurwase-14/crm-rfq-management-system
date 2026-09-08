@@ -11,8 +11,8 @@ module.exports = function demoFallback(req, res, next) {
 
   const { method, path } = req;
 
-  // Root or health
-  if (path === '/' || path === '/api' || path === '/api/health') {
+  // API root or health
+  if (path === '/api' || path === '/api/health') {
     return res.json({
       name: 'ApexRFQ API',
       status: 'online',

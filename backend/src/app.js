@@ -37,13 +37,6 @@ app.use(morgan('dev'));
 const demoFallback = require('./middleware/demoFallback');
 app.use(demoFallback);
 
-app.get('/', (req, res) => res.json({
-  name: 'ApexRFQ API',
-  status: 'online',
-  version: '1.0.0',
-  health: '/api/health',
-}));
-
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 app.use('/api/auth', authRoutes);
@@ -53,10 +46,27 @@ app.use('/api/products', productRoutes);
 app.use('/api/rfqs', rfqRoutes);
 app.use('/api/quotes', quoteRoutes);
 
-// 404 handler
+// Serve frontend static assets
+const path = require('path');
+const fs = require('fs');
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
+
+// SPA client-side routing fallback for non-API routes (compatible with Express 5)
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  if (req.path.startsWith('/api')) return next();
+  const indexFile = path.join(publicPath, 'index.html');
+  if (fs.existsSync(indexFile)) {
+    return res.sendFile(indexFile);
+  }
+  next();
+});
+
+// API 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
-// Generic error handler (catches anything thrown synchronously in a route)
+// Generic error handler
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });

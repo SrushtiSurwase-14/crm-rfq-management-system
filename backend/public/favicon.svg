@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <!-- A stylized "A" for Apex -->
+  <path d="M16 7L8 25h3.5l1.8-4.5h5.4l1.8 4.5H24L16 7z" fill="white" opacity="0.95"/>
+  <path d="M13.2 17.5l2.8-7 2.8 7H13.2z" fill="url(#grad2)"/>
+  <defs>
+    <linearGradient id="grad2" x1="13" y1="10" x2="19" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+</svg>
