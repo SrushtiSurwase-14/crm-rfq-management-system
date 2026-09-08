@@ -5,7 +5,7 @@ const { User } = require('../models');
 function signToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role, name: user.name },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || 'apex-rfq-jwt-secret-key-2026-production',
     { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
 }
