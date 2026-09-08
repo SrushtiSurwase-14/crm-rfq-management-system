@@ -15,9 +15,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  // Allow ALL vercel.app subdomains for this project
-  /^https:\/\/crm-rfq-management-system.*\.vercel\.app$/,
-  // Allow explicit production URL from env
+  /\.vercel\.app$/,
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
