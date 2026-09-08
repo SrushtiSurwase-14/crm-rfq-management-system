@@ -22,13 +22,19 @@ async function start() {
       console.log('In-memory database seeded with demo data.');
     }
 
-    app.listen(PORT, () => {
-      console.log(`CRM & RFQ Automation API listening on http://localhost:${PORT}`);
-    });
+    if (!isVercel) {
+      app.listen(PORT, () => {
+        console.log(`CRM & RFQ Automation API listening on http://localhost:${PORT}`);
+      });
+    }
   } catch (err) {
     console.error('Failed to start server:', err);
-    process.exit(1);
+    if (!isVercel) process.exit(1);
   }
 }
 
-start();
+if (!isVercel) {
+  start();
+}
+
+module.exports = app;
