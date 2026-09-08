@@ -37,6 +37,23 @@ app.use(express.json({ limit: '2mb' }));
 app.use(morgan('dev'));
 
 
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'ApexRFQ Backend API',
+    time: new Date().toISOString(),
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      customers: '/api/customers',
+      leads: '/api/leads',
+      products: '/api/products',
+      rfqs: '/api/rfqs',
+      quotes: '/api/quotes',
+    },
+  });
+});
+
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 app.use('/api/auth', authRoutes);

@@ -1,40 +1,72 @@
 require('dotenv').config();
-const app = require('./app');
-const { sequelize } = require('./models');
+
+let app;
+let initError = null;
+
+try {
+  app = require('./app');
+} catch (e) {
+  initError = {
+    message: e.message,
+    stack: e.stack,
+  };
+  console.error('Failed to require ./app:', e);
+}
 
 const PORT = process.env.PORT || 5000;
 const isVercel = !!process.env.VERCEL;
 
-// Import seed function for Vercel in-memory DB
-const seedForVercel = isVercel ? require('./seedVercel') : null;
+let dbInitPromise = null;
+async function ensureDbInit() {
+  if (dbInitPromise) return dbInitPromise;
+  dbInitPromise = (async () => {
+    try {
+      const { sequelize } = require('./models');
+      await sequelize.authenticate();
+      console.log(`Database connected (${sequelize.getDialect()})`);
 
-async function start() {
-  try {
-    await sequelize.authenticate();
-    console.log(`Database connection established (${sequelize.getDialect()}).`);
+      const shouldForce = isVercel && sequelize.getDialect() === 'sqlite';
+      await sequelize.sync({ force: shouldForce });
+      console.log('Database synced');
 
-    await sequelize.sync({ force: isVercel }); // force: true on Vercel to reset in-memory DB
-    console.log('Database synced.');
-
-    // Seed the in-memory database on Vercel cold starts
-    if (isVercel && seedForVercel) {
-      await seedForVercel();
-      console.log('In-memory database seeded with demo data.');
+      if (isVercel) {
+        const seedForVercel = require('./seedVercel');
+        await seedForVercel();
+        console.log('Database seeded with demo data');
+      }
+    } catch (err) {
+      console.error('Database initialization warning:', err.message);
     }
+  })();
+  return dbInitPromise;
+}
 
-    if (!isVercel) {
-      app.listen(PORT, () => {
-        console.log(`CRM & RFQ Automation API listening on http://localhost:${PORT}`);
-      });
-    }
-  } catch (err) {
+if (!isVercel && app) {
+  ensureDbInit().then(() => {
+    app.listen(PORT, () => {
+      console.log(`CRM & RFQ Automation API listening on http://localhost:${PORT}`);
+    });
+  }).catch((err) => {
     console.error('Failed to start server:', err);
-    if (!isVercel) process.exit(1);
+    process.exit(1);
+  });
+}
+
+module.exports = async (req, res) => {
+  if (initError) {
+    return res.status(500).json({
+      error: 'Backend Initialization Error',
+      details: initError,
+    });
   }
-}
-
-if (!isVercel) {
-  start();
-}
-
-module.exports = app;
+  try {
+    await ensureDbInit();
+    return app(req, res);
+  } catch (err) {
+    return res.status(500).json({
+      error: 'Serverless execution error',
+      message: err.message,
+      stack: err.stack,
+    });
+  }
+};
