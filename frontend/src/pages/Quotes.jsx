@@ -7,9 +7,13 @@ export default function Quotes() {
   const [quotes, setQuotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/quotes').then(({ data }) => setQuotes(data.quotes));
+    api.get('/quotes').then(({ data }) => {
+      setQuotes(data.quotes);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   const filteredQuotes = quotes.filter((q) => {
@@ -21,6 +25,17 @@ export default function Quotes() {
     if (statusFilter === 'ALL') return matchesSearch;
     return matchesSearch && q.status === statusFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="spinner-wrap">
+          <div className="spinner" />
+          <span className="spinner-label">Loading quotations…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -37,9 +52,7 @@ export default function Quotes() {
         <div className="card-header">
           <div className="card-title-group">
             <h2>Quote Pipeline</h2>
-            <span className="badge" style={{ background: '#f1f5f9', color: 'var(--text-muted)' }}>
-              {filteredQuotes.length} quotations
-            </span>
+            <span className="badge">{filteredQuotes.length} quotations</span>
           </div>
         </div>
 
@@ -98,9 +111,7 @@ export default function Quotes() {
                       <Link to={`/rfqs/${q.rfq.id}`} style={{ fontWeight: 600 }}>
                         #RFQ-{q.rfq.id}
                       </Link>
-                    ) : (
-                      '—'
-                    )}
+                    ) : ('—')}
                   </td>
                   <td>
                     <strong>{q.customer?.name}</strong>
@@ -111,9 +122,7 @@ export default function Quotes() {
                       ₹{q.total_amount?.toLocaleString() || q.total_amount}
                     </strong>
                   </td>
-                  <td>
-                    <StatusBadge value={q.status} />
-                  </td>
+                  <td><StatusBadge value={q.status} /></td>
                   <td>
                     <span style={{ fontWeight: 600 }}>{q.reviewer?.name || 'Pending Review'}</span>
                   </td>
@@ -126,8 +135,17 @@ export default function Quotes() {
               ))}
               {filteredQuotes.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
-                    No quotes found matching your filters.
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                      </div>
+                      <h3>No quotes found</h3>
+                      <p>No quotes match your current filters. Process an RFQ to generate a quote.</p>
+                    </div>
                   </td>
                 </tr>
               )}

@@ -16,11 +16,13 @@ export default function Leads() {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     const [leadsRes, customersRes] = await Promise.all([api.get('/leads'), api.get('/customers')]);
     setLeads(leadsRes.data.leads);
     setCustomers(customersRes.data.customers);
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -54,6 +56,17 @@ export default function Leads() {
     if (statusFilter === 'ALL') return matchesSearch;
     return matchesSearch && l.status === statusFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="spinner-wrap">
+          <div className="spinner" />
+          <span className="spinner-label">Loading CRM leads…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

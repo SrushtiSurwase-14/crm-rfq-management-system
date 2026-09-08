@@ -58,9 +58,10 @@ export default function Dashboard() {
   if (!stats) {
     return (
       <div className="container">
-        <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-            Loading live dashboard metrics…
+        <div className="card" style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
+          <div className="spinner-wrap">
+            <div className="spinner" />
+            <span className="spinner-label">Loading live dashboard metrics…</span>
           </div>
         </div>
       </div>
@@ -396,8 +397,16 @@ export default function Dashboard() {
               })}
               {filteredRfqs.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-muted)' }}>
-                    {searchQuery ? 'No RFQs match your search query.' : 'No RFQs recorded yet. Simulate an incoming RFQ to test.'}
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                      </div>
+                      <h3>{searchQuery ? 'No matches found' : 'No RFQs yet'}</h3>
+                      <p>{searchQuery ? 'No RFQs match your search query.' : 'Simulate an incoming RFQ to test the pipeline.'}</p>
+                    </div>
                   </td>
                 </tr>
               )}

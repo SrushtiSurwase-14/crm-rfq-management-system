@@ -4,6 +4,10 @@ const path = require('path');
 
 const dialect = process.env.DB_DIALECT || 'sqlite';
 
+// On Vercel (serverless), the filesystem is read-only so we use in-memory SQLite.
+// Locally we use a file-based database for persistence between restarts.
+const isVercel = !!process.env.VERCEL;
+
 let sequelize;
 
 if (dialect === 'postgres') {
@@ -18,8 +22,15 @@ if (dialect === 'postgres') {
       logging: false,
     }
   );
+} else if (isVercel) {
+  // Vercel serverless: use in-memory SQLite — seeded on every cold start.
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: ':memory:',
+    logging: false,
+  });
 } else {
-  // Default: SQLite file DB - zero external setup, ideal for local demo/grading.
+  // Local dev: file-based SQLite with persistence.
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: path.join(__dirname, '..', '..', process.env.DB_STORAGE || './data/database.sqlite'),

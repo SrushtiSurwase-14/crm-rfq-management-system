@@ -62,6 +62,7 @@ export default function RFQs() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const load = async () => {
@@ -71,6 +72,7 @@ export default function RFQs() {
     ]);
     setRfqs(rfqRes.data.rfqs);
     setCustomers(custRes.data.customers);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -116,6 +118,17 @@ export default function RFQs() {
     if (statusFilter === 'ALL') return matchesSearch;
     return matchesSearch && r.status === statusFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="spinner-wrap">
+          <div className="spinner" />
+          <span className="spinner-label">Loading RFQ inbox…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

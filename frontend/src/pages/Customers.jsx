@@ -9,10 +9,12 @@ export default function Customers() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     const { data } = await api.get('/customers');
     setCustomers(data.customers);
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -38,6 +40,17 @@ export default function Customers() {
       (c.company && c.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
       c.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="spinner-wrap">
+          <div className="spinner" />
+          <span className="spinner-label">Loading customer accounts…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

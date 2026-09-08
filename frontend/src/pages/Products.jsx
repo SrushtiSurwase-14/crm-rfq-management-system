@@ -15,10 +15,12 @@ export default function Products() {
   const [stockDraft, setStockDraft] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     const { data } = await api.get('/products');
     setProducts(data.products);
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -73,6 +75,17 @@ export default function Products() {
     if (categoryFilter === 'ALL') return matchesSearch;
     return matchesSearch && p.category === categoryFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="spinner-wrap">
+          <div className="spinner" />
+          <span className="spinner-label">Loading product catalog…</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -270,8 +283,16 @@ export default function Products() {
               })}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
-                    No products found matching filters.
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m7.5 4.27 9 5.15" /><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                        </svg>
+                      </div>
+                      <h3>No products found</h3>
+                      <p>No products match your search or category filter.</p>
+                    </div>
                   </td>
                 </tr>
               )}
